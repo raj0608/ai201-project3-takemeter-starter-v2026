@@ -39,49 +39,51 @@
 
 ## What This Does
 
-<!-- Your community, and what your classifier sorts posts into. Three or four
-     sentences. -->
-
-
+TakeMeter sorts comments from r/nba (the NBA subreddit) by what kind of contribution they make. It reads one comment and labels it `analytical` (supported by checkable facts or reasoning), `opinion` (a firm claim with no support), or `emotional_personal` (about the writer's own feelings or life). Questions, news reposts, and jokes are left out of the dataset on purpose.
 
 ---
 
 ## Label Taxonomy
 
-<!-- Each label: a one-sentence definition and two real examples from your
-     reading. Then your decision rule for the hardest boundary.
+### `analytical`
 
-     The decision rule is worth a point on its own and it's the thing most
-     people leave out. Every taxonomy has a hardest boundary. Name yours. -->
-
-### `label_one`
-
-**Definition:**
+**Definition:** Breaks down gameplay, roster construction, financial rules, or statistics by citing a specific, checkable fact or supporting logic.
 
 **Example 1:**
->
+> Here’s the biggest issue with having Jaylen Brown on the Celtics: the second apron. He’s a good and well-liked player who had a lot of success here
 
 **Example 2:**
->
+> Ita underrated how unusually difficult of a role Brunson had. The drop-off between him and the next best player to the run half court offense was pretty massive. It was who, KAT? Jose? And KAT can't do it too much because he had to save his stamina for Wemby I know his stats aren't impressive for a finals mvp. Im guessing he was the least efficient finals mvp in a long time ...
 
-### `label_two`
+### `opinion`
 
-**Definition:**
+**Definition:** Asserts a firm, subjective judgment or hot take about a player, team, or event without offering supporting evidence, data, or technical explanation.
 
 **Example 1:**
->
+> this list is wild no one in thier fucking mind is choosing brunson over Kawhi😂
 
 **Example 2:**
->
+> Lefanboys drooling over this clown - meanwhile be tried to join the knicks but they knew better than to sign a toxic flopper
+
+### `emotional_personal`
+
+**Definition:** Centers on the writer's own feelings, personal story, or connection to the topic, using first-person or emotional language.
+
+**Example 1:**
+> I’ve always liked Randle ever since he was so candid about his decision to quit weed. Honestly motivated me to do the same
+
+**Example 2:**
+> The Kobe circlejerking & Shai hating circlejerk have United. This is painful. I hate this sub.
 
 ### The hardest boundary
 
-**Which two labels:**
+**Which two labels:** `opinion` vs. `emotional_personal`.
 
 **The decision rule I used every time:**
-<!-- e.g. "If the post names a specific checkable fact, it's `analysis`, even
-     if the tone is heated." -->
-
+Ask what the post is mainly about. If it is about the subject (a player, team, or play), it is `opinion`. If it is about the writer's own state (feelings, life, fandom), it is `emotional_personal`. Related rules:
+- If a post has both a claim and a feeling, the stronger one decides.
+- A hostile post, including an attack on another commenter, is `opinion` unless its main content is the writer's own feeling.
+- If a post cites a specific, checkable fact, it is `analytical`, even if the tone is heated. Reasoning with no checkable fact is `opinion`.
 
 
 ---
