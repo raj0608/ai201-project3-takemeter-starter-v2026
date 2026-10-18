@@ -1,0 +1,8 @@
+### Staging file for r/nba posts. Paste one whole post per block.
+### Separate posts with a line containing only: ====
+### Lines starting with ### are ignored. Keep whole posts, don't trim.
+### Optional: put "label | note" on the first line of a block once you've labelled it, e.g.
+###   >> analysis | cold
+### Unlabelled blocks are fine for now.
+
+====
