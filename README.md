@@ -162,7 +162,13 @@ Ask what the post is mainly about. If it is about the subject (a player, team, o
 - *What came back:* capitalised labels, hard-case notes typed in the label column, and two near-duplicate comments that I had labelled differently.
 - *What I changed:* I fixed the spelling and moved the notes. I dropped one of the duplicates so it could not leak between the training and test splits, and I labelled its replacement cold.
 
-**Pre-labelling disclosure:** A model pre-labelled 203 of my 223 rows (every row except the 20 cold ones) from my written definitions. I read each one and changed 3, all to `opinion`. The same model helped write `collect_posts.py`. The label definitions, decision rules, and acceptance criteria are mine.
+**Moment 3 (unit 6): checking whether the improvement was one change or two**
+
+- *What I asked for:* a way to fix the model's collapse by adding synthetic data and training longer together.
+- *What came back:* a warning that two changes at once would make the result impossible to attribute, and that synthetic posts are not real r/nba posts. It suggested real comments instead, and measuring the epochs change and the data change as separate runs.
+- *What I changed:* I collected real comments for the thin labels, and ran 10 epochs alone (A) and 10 epochs plus the new data (B). I report both. I still used two changes, not one, and say so in The Improvement.
+
+**Pre-labelling disclosure:** A model pre-labelled 203 of my 223 rows (every row except the 20 cold ones) from my written definitions. I read each one and changed 3, all to `opinion`. In unit 6, a model also pre-labelled the 68 extra comments in `extra_examples.csv` (34 `analytical`, 34 `emotional_personal` after my review): it picked them from about 260 candidates and I reviewed every row and changed 4 labels. The same model helped write `collect_posts.py`, `check_clear_cases.py` and `run_experiments.py`, and drafted the wording of some README sections, which I edited. My 30 staff-set labels were done alone, before I opened the staff labels. The label definitions, decision rules, and acceptance criteria are mine.
 
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
@@ -266,62 +272,39 @@ All five criteria were MISSED on all three seeds. A target counts as met only if
 **The one cause behind all five: the model collapsed to the majority label.** All 34 test posts were called `opinion` on all three seeds, and the confusion matrix shows it (columns `analytical` and `emotional_personal` are all zero). Accuracy of 0.618 is exactly the share of `opinion` in the test split (21 of 34), so a model that always says `opinion` scores the same. The loss was still falling at epoch 3 (1.00, 0.90, 0.87) while accuracy stayed flat, so the model was still undertrained, not finished. The spread of 0.000 across seeds is the same collapse repeating, not stability.
 
 - **Criterion 1 (accuracy):** the cause is the collapse above. The score is the floor for always guessing `opinion`, so the model learned nothing beyond the label frequencies. I know this from the matrix and from the accuracy matching 21/34.
-- **Criterion 2 (`analytical` F1):** the cause is too few examples, plus the collapse. `analytical` has 34 labelled comments, only 24 in training, and 5 in the test split, and all 5 were called `opinion`. The zero-shot baseline with bare label names also scored only 0.250 F1 on `analytical`, so this is a hard label for any model, not just mine.
+- **Criterion 2 (`analytical` F1):** the cause is too few examples, plus the collapse. `analytical` has 34 labelled comments, only 24 in training, and 5 in the test split, and all 5 were called `opinion`. The zero-shot baseline with bare label names also scored only 0.250 F1 on `analytical`, so this is a hard label for any model, not just mine. My agreement check also found both of my disagreements were `analysis` posts that I called something else, so I may have under-labelled `analytical` in my own data, which is a labelling cause on top of the thin data.
 - **Criterion 3 (balance):** the cause is the collapse, which is a model problem and not a data-balance problem: my data is 62% `opinion`, but the model's predictions are 100% `opinion`, so it amplified the imbalance.
-- **Criterion 4 (`emotional_personal` precision):** the cause is the collapse. The model never predicted this label, so all 8 real `emotional_personal` test posts were called `opinion`. The reverse never happened (0 real `opinion` called `emotional_personal`). This is my hardest boundary, so a labelling problem is possible. *Agreement-report evidence for this boundary goes here once I have the staff labels.*
+- **Criterion 4 (`emotional_personal` precision):** the cause is the collapse. The model never predicted this label, so all 8 real `emotional_personal` test posts were called `opinion`. The reverse never happened (0 real `opinion` called `emotional_personal`). This is my hardest boundary, so a labelling problem is possible. The agreement check found no disagreements on the closest staff pair (`hot_take` vs `reaction`), so on that boundary I applied the rule consistently on those 30 posts. That points at the model, not my labels: the model never learned this pair at 3 epochs.
 - **Criterion 5 (clear cases):** the model got only the two `opinion` cases right and missed the two `analytical` and two `emotional_personal` ones on every seed. These six were picked as obvious, so a labelling inconsistency in my training data cannot fully explain the misses. This points at the model, which has not learned the smaller labels at all.
 
 ## Agreement Report
 
-<!-- Your rate against the staff set, and every disagreement adjudicated.
+I labelled the 30 staff posts under the staff taxonomy (`analysis`, `hot_take`, `reaction`) before I opened the staff labels. `agreement.py` compared them (`agreement_results.json`, my labels in `my_staff_labels.csv`).
 
-     Remember you labelled these 30 under the STAFF taxonomy in
-     data/staff_taxonomy.md, not your own — so every argument below is made
-     from those definitions and those decision rules. -->
-
-**Agreement rate:** ___ / 30 = ___%
-
-<!-- Nobody grades this number. A 60% who argues every disagreement from the
-     stated rules beats a 95% who wrote "staff was right" nine times. Several
-     of the 30 were chosen because they're genuinely ambiguous — you should be
-     winning some of these. -->
+**Agreement rate:** 28 / 30 = 93%
 
 **Disagreements**
 
-<!-- Three lines each: the post, both labels, and who you think is right and
-     why — grounded in the staff definitions you were both applying.
-
-     Then sort each into one of three piles:
-       (a) the rule covered it and I applied it loosely → a consistency problem
-       (b) the rule genuinely doesn't say               → a gap in the definitions
-       (c) the rule is ambiguous here and my reading is defensible → argue it.
-           This is a legitimate win.
-
-     Pile (a) is the one that matters most for your diagnosis: if you applied a
-     written rule two different ways on 30 posts, that is direct evidence about
-     what you did across your own 200. -->
-
 **1.**
-> *The post:*
+> *The post:* "The club championship scoring changed in 2019 from top-6 to top-10. Since then our B team has finished above the A team twice. That's not depth improving, it's the scoring rewarding turnout."
 >
-> *Staff said / I said:*
+> *Staff said / I said:* `analysis` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. The facts here are load-bearing: a date (2019), a specific rule change (top-6 to top-10), and a before/after comparison (B team above A team twice since). The conclusion in the last sentence follows from those facts, and they are the reason for it, not decoration. Rule 1 even gives a near-identical example ("Times are down 3% since 2017, and the shoe rule changed in 2017. That's the most likely single cause." is `analysis`). I most likely reacted to the confident last sentence and treated it as a bare claim.
 >
-> *Which pile:*
+> *Which pile:* (a) the rule covered it and I applied it loosely.
 
 **2.**
-> *The post:*
+> *The post:* "Three of us ran the same session on the same day, different shoes, within 10 seconds of each other over 5 miles. I'm not saying shoes do nothing, but whatever they do was smaller than the noise between three people."
 >
-> *Staff said / I said:*
+> *Staff said / I said:* `analysis` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right, but I can see why I slipped. The post is written in the first person about something the writer just did, which is how `reaction` looks. But rule 3 says recency does not outrank evidence, and `reaction` is "feeling rather than argument". This post has no feeling in it. It argues a hedged conclusion from a checkable fact (10 seconds over 5 miles, three runners, same day), and the fact does the work. The weakness is that three runners is a tiny sample, but the definition only asks for a checkable fact that carries the argument, not a strong one.
 >
-> *Which pile:*
+> *Which pile:* (a) the rule covered it and I applied it loosely.
 
 **What the pattern in my disagreements tells me:**
-
-
+Both disagreements were the same mistake: I called a post that argues from a fact something else (`hot_take`, `reaction`) because its tone or its first-person framing looked like that label, so I under-called `analysis`. Both were covered by a written rule, so this is a consistency problem and not a gap in the definitions. It matters for my own 223 labels, because `analytical` is my smallest label (15%) and my own rule says a checkable fact makes a post `analytical` even when the tone is heated; I may have applied that rule loosely in the same direction and called some `analytical` posts `opinion`. That would help explain the low `analytical` F1. On the other hand, there were no disagreements on the staff pair closest to my `opinion` vs `emotional_personal` boundary (`hot_take` vs `reaction`), so I applied that boundary consistently on these 30 posts. With only 30 posts and two disagreements, this is weak evidence, not proof.
 
 ---
 
@@ -369,15 +352,17 @@ Two cautions. First, the test split is only 34 posts, with 5 `analytical`, so a 
 
 ## What's Still Broken
 
-<!-- For each criterion still missed: what you'd do, and why you stopped. -->
+After the improvement (run B), four of my five criteria are still missed:
 
+- **Criterion 1, accuracy at least 0.70:** missed on seed 7 (0.676); seeds 42 and 2024 passed (0.706, 0.853). I would collect more labelled comments for all three labels and re-run, since the test split is only 34 posts and one post moves accuracy by about 3 points. I stopped because the project allows one improvement.
+- **Criterion 2, `analytical` F1 at least 0.60:** missed on every seed (0.44, 0.40, 0.57). I would relabel my `analytical` vs `opinion` boundary against my own rule, because the agreement check showed I under-call `analysis`, and then add more real `analytical` examples that do not rely on numbers. I stopped because that would be a second kind of change and I wanted the run log to stay readable.
+- **Criterion 3, no label above 60% of predictions:** missed on seeds 42 (62%) and 2024 (71%), met on seed 7 (59%). The model still over-predicts `opinion`, which is 62% of my data. I would try class weights or more `analytical` and `emotional_personal` training data, and I stopped for the same reason.
+- **Criterion 5, six clear cases:** 5 of 6 on every seed. The one it misses is an `emotional_personal` comment, which it calls `opinion`, the same direction as my original confusion. I would add more clear `emotional_personal` examples.
 
+Criterion 4 (`emotional_personal` precision at least 0.60) is MET on all three seeds after the improvement, but it was missed on seed 2024 after the 10-epoch change alone, so I treat it as fragile.
 
-**The gap between what I meant my labels to capture and what the model
-learned:**
-<!-- Two sentences. Your confusion matrix is the evidence. -->
-
-
+**The gap between what I meant my labels to capture and what the model learned:**
+I meant `analytical`, `opinion` and `emotional_personal` to separate what a comment does (argue from a fact, assert a judgment, or express the writer's own feeling), but the first model learned only the label frequencies: its matrix put all 34 test posts in the `opinion` column. After more epochs and more data, it separates `emotional_personal` fairly well, but still confuses `analytical` with `opinion` (in the seed 42 matrix, 3 of 5 real `analytical` posts were called `opinion`), which is the same boundary where I was inconsistent on the staff posts.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
