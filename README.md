@@ -90,91 +90,79 @@ Ask what the post is mainly about. If it is about the subject (a player, team, o
 
 ## The Dataset
 
-<!-- Where you collected from, how you labelled, your counts, and three hard
-     cases. -->
+**Where the posts came from:** Top-level comments from r/nba, collected with `collect_posts.py` from the public Arctic Shift archive of Reddit (Reddit blocked direct scraping). It covers October 6-15, 2026. I kept comments of 80-1200 characters and dropped bots, removed comments, links, text posts, and comments that end in a question mark.
 
-**Where the posts came from:**
-
-**How I labelled them:** <!-- Cold first? Pre-labelled with AI and corrected?
-Say so plainly — the disclosure is required, not penalised. -->
+**How I labelled them:** I labelled 20 comments cold, alone and with no tools, and marked them `cold` in the note column. A model then pre-labelled 203 more comments from my definitions. I read every one of those and corrected 3; they are marked `pre-labeled` in the note column. Six comments were held out of the file on purpose for my clear-case criterion in `criteria.md`.
 
 **Counts per label:**
 
 | Label | Count | Share |
 |---|---|---|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-| **Total** |  | 100% |
+| opinion | 139 | 62.3% |
+| emotional_personal | 50 | 22.4% |
+| analytical | 34 | 15.2% |
+| **Total** | 223 | 100% |
 
 **Three hard cases**
 
-<!-- Any post that made you pause: what it was, which two labels it could have
-     been, and what you chose. These are worth more than the easy 190. -->
-
 **1.**
-> *The post:*
+> *The post:* I mean if a failed trade was enough destroy him like this maybe he wasn’t really built for the league
 >
-> *Could have been:*
+> *Could have been:* `opinion` or `emotional_personal`
 >
-> *I chose, because:*
+> *I chose:* `opinion`, because the subject is the player ("wasn't really built for the league"), not the writer's own feelings.
 
 **2.**
-> *The post:*
+> *The post:* "Superteam" is just such a dumb term overall, but it's especially stupid with the Sixers. They made the second round of the playoffs literally last season. With Embiid being in and out. They swapped Old Paul George for Jaylen Brown and LeBron. And Maxey might be their best regular season player. The Knicks and Sixers are the only two teams in the East where failing to advance deep in the playoffs is just a clear failure.
 >
-> *Could have been:*
+> *Could have been:* `opinion` or `emotional_personal`
 >
-> *I chose, because:*
+> *I chose:* `opinion`, because it argues about the Sixers ("dumb term") and the frustration is aimed at the label, not at the writer's own state. It mentions facts, but they back up a judgment and are not the main point.
 
 **3.**
-> *The post:*
+> *The post:* Grizzlies score 49 in one quarter, and somehow, hawks are an "elite defensive team"
 >
-> *Could have been:*
+> *Could have been:* `analytical` or `opinion`
 >
-> *I chose, because:*
+> *I chose:* `analytical`, because it cites a specific checkable fact (49 points in one quarter) to challenge a claim. Under my rule, a checkable fact makes a post `analytical`, even if the tone is sarcastic.
 
 ---
 
 ## The Training Run
 
-<!-- Your starting model, your settings, and anything you changed and why. -->
+**Base model:** `distilbert-base-uncased`
 
-**Base model:**
+**Settings:** 3 epochs, learning rate 2e-5, batch size 16, max length 128 tokens, seed 42. Trained on an Apple Silicon GPU (MPS) with torch 2.14.1.
 
-**Settings:** <!-- epochs, learning rate, batch size, seed -->
+**Anything I changed from the defaults, and why:** Nothing. I used every default.
 
-**Anything I changed from the defaults, and why:**
+**Split sizes:** train 155, validation 34, test 34 (70/15/15, stratified).
 
-**Split sizes:** <!-- train / val / test, and per-label counts in the test
-split. If a label had fewer than about 8 in test, say so — it explains a lot
-of next unit's variance. -->
+| Label | Train | Val | Test |
+|---|---|---|---|
+| analytical | 24 | 5 | 5 |
+| opinion | 97 | 21 | 21 |
+| emotional_personal | 34 | 8 | 8 |
 
-
+`analytical` has only 5 examples in the test split, so any score for it will move a lot between seeds.
 
 ---
 
 ## How I Used AI
 
-<!-- Two specific moments — what you asked, what came back, what you changed.
+**Moment 1: stress-testing my labels**
 
-     ⚠️ Plus disclosure of any pre-labelling. If you had a model pre-label a
-     batch and then read and corrected every one, say that. It's an allowed
-     workflow and disclosing it costs you nothing. Not disclosing it is the
-     problem. -->
+- *What I asked for:* eight invented posts that sit on the boundaries of my three label definitions, so I could classify them cold.
+- *What came back:* eight short posts. I labelled them and was unsure about three (a post that mixes a claim and a feeling, a post attacking another commenter, and a post with thin support).
+- *What I changed:* each of the three uncertain posts became a written rule. If a post has both a claim and a feeling, the stronger one decides. An attack on another commenter is `opinion`. A checkable fact makes a post `analytical`.
 
-**Moment 1**
+**Moment 2: checking my cold-labelled file**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* a format check of my 20 cold labels, without any comment on my choices.
+- *What came back:* capitalised labels, hard-case notes typed in the label column, and two near-duplicate comments that I had labelled differently.
+- *What I changed:* I fixed the spelling and moved the notes. I dropped one of the duplicates so it could not leak between the training and test splits, and I labelled its replacement cold.
 
-**Moment 2**
-
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
-
-**Pre-labelling disclosure:**
+**Pre-labelling disclosure:** A model pre-labelled 203 of my 223 rows (every row except the 20 cold ones) from my written definitions. I read each one and changed 3, all to `opinion`. The same model helped write `collect_posts.py`. The label definitions, decision rules, and acceptance criteria are mine.
 
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
