@@ -198,6 +198,20 @@ Two surprises. First, with my definitions as the prompt the baseline was worse t
 <!-- Five criteria across three seeds. The notebook's section 6 prints the
      spread table; the Target and Verdict columns are yours. -->
 
+**Device:** Apple Silicon GPU (MPS), torch 2.14.1, max length 128. All runs are the same system as the earlier unit: 3 epochs, learning rate 2e-5, batch size 16. Only the seed changed (42, 7, 2024).
+
+**Raw numbers, three seeds (34 test posts each):**
+
+| Measure | Seed 42 | Seed 7 | Seed 2024 | Spread |
+|---|---|---|---|---|
+| Overall accuracy | 0.618 | 0.618 | 0.618 | 0.000 |
+| Macro F1 | 0.255 | 0.255 | 0.255 | 0.000 |
+| F1 `analytical` | 0.000 | 0.000 | 0.000 | 0.000 |
+| F1 `opinion` | 0.764 | 0.764 | 0.764 | 0.000 |
+| F1 `emotional_personal` | 0.000 | 0.000 | 0.000 | 0.000 |
+
+A spread of 0.000 does not mean the result is trustworthy. All three seeds gave the identical result because every seed made the same collapse: the model predicted `opinion` for every test post.
+
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
 | 1.  |  |  |  |  |  |
@@ -208,11 +222,18 @@ Two surprises. First, with my definitions as the prompt the baseline was worse t
 
 ### Confusion matrix
 
-<!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
-     An image of a matrix earns nothing. -->
+Seed 42. Seeds 7 and 2024 produced the identical matrix. Rows are the true label, columns are the model's guess.
 
-| true \ predicted |  |  |  |
+| true \ predicted | analytical | opinion | emotional_personal |
 |---|---|---|---|
+| **analytical** | 0 | 5 | 0 |
+| **opinion** | 0 | 21 | 0 |
+| **emotional_personal** | 0 | 8 | 0 |
+
+**My biggest off-diagonal number, and what it means:**
+The biggest is 8 real `emotional_personal` posts called `opinion`, and 0 went the other way. The 5 `analytical` posts were also all called `opinion`. So the model did not learn a boundary between `opinion` and either of the other two labels. It only learned to say `opinion`, the majority label.
+
+---|---|---|---|
 | **** |  |  |  |
 | **** |  |  |  |
 | **** |  |  |  |
