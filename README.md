@@ -214,11 +214,13 @@ A spread of 0.000 does not mean the result is trustworthy. All three seeds gave 
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Overall accuracy | ≥ 0.70 | 0.618 | 0.618 | 0.618 | MISSED |
+| 2. F1 `analytical` | ≥ 0.60 | 0.000 | 0.000 | 0.000 | MISSED |
+| 3. Biggest label's share of predictions | ≤ 60% | 100% (`opinion`) | 100% (`opinion`) | 100% (`opinion`) | MISSED |
+| 4. Precision `emotional_personal` | ≥ 0.60 | 0.000 (no predictions) | 0.000 (no predictions) | 0.000 (no predictions) | MISSED |
+| 5. Clear cases correct | 6 of 6 | 2 of 6 | 2 of 6 | 2 of 6 | MISSED |
+
+Criterion 5 was scored by `check_clear_cases.py`, which retrains with the notebook's own code and seeds and predicts the six held-out comments (`clear_cases_results.json`). Its training losses match the notebook's runs.
 
 ### Confusion matrix
 
@@ -249,31 +251,25 @@ The biggest is 8 real `emotional_personal` posts called `opinion`, and 0 went th
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED against LAST UNIT's target. The target has to hold across
-     all three seeds, not turn up sometimes. -->
+All five criteria were MISSED on all three seeds. A target counts as met only if it holds on every seed, and none held on any seed.
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Overall accuracy | ≥ 0.70 | MISSED | 0.618 on every seed, below 0.70. |
+| 2 | F1 `analytical` | ≥ 0.60 | MISSED | F1 was 0.000 on every seed. |
+| 3 | No label above 60% of predictions | ≤ 60% | MISSED | `opinion` was 100% of predictions (34 of 34) on every seed. |
+| 4 | Precision `emotional_personal` | ≥ 0.60 | MISSED | The model never predicted `emotional_personal`, so precision is undefined and scored 0.000. A criterion cannot be met by making no predictions. |
+| 5 | Six clear cases correct | 6 of 6 | MISSED | 2 of 6 on every seed. |
 
 **Diagnoses**
 
-<!-- For each miss: the cause, and how you know. The four common causes are:
-     too few examples for a label, a boundary you applied inconsistently, a
-     genuinely hard label pair, and a task the model can't reach from this
-     much data.
+**The one cause behind all five: the model collapsed to the majority label.** All 34 test posts were called `opinion` on all three seeds, and the confusion matrix shows it (columns `analytical` and `emotional_personal` are all zero). Accuracy of 0.618 is exactly the share of `opinion` in the test split (21 of 34), so a model that always says `opinion` scores the same. The loss was still falling at epoch 3 (1.00, 0.90, 0.87) while accuracy stayed flat, so the model was still undertrained, not finished. The spread of 0.000 across seeds is the same collapse repeating, not stability.
 
-     ⚠️ Use your agreement report as evidence. It is the only instrument you
-     have that can tell a LABELLING problem from a MODEL problem, and this
-     section is graded on whether you used it that way. -->
-
-
-
----
+- **Criterion 1 (accuracy):** the cause is the collapse above. The score is the floor for always guessing `opinion`, so the model learned nothing beyond the label frequencies. I know this from the matrix and from the accuracy matching 21/34.
+- **Criterion 2 (`analytical` F1):** the cause is too few examples, plus the collapse. `analytical` has 34 labelled comments, only 24 in training, and 5 in the test split, and all 5 were called `opinion`. The zero-shot baseline with bare label names also scored only 0.250 F1 on `analytical`, so this is a hard label for any model, not just mine.
+- **Criterion 3 (balance):** the cause is the collapse, which is a model problem and not a data-balance problem: my data is 62% `opinion`, but the model's predictions are 100% `opinion`, so it amplified the imbalance.
+- **Criterion 4 (`emotional_personal` precision):** the cause is the collapse. The model never predicted this label, so all 8 real `emotional_personal` test posts were called `opinion`. The reverse never happened (0 real `opinion` called `emotional_personal`). This is my hardest boundary, so a labelling problem is possible. *Agreement-report evidence for this boundary goes here once I have the staff labels.*
+- **Criterion 5 (clear cases):** the model got only the two `opinion` cases right and missed the two `analytical` and two `emotional_personal` ones on every seed. These six were picked as obvious, so a labelling inconsistency in my training data cannot fully explain the misses. This points at the model, which has not learned the smaller labels at all.
 
 ## Agreement Report
 

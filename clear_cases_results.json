@@ -1,0 +1,92 @@
+[
+  {
+    "seed": 42,
+    "correct": 2,
+    "cases": [
+      {
+        "gold": "opinion",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "opinion",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "analytical",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "analytical",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "emotional_personal",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "emotional_personal",
+        "predicted": "opinion"
+      }
+    ]
+  },
+  {
+    "seed": 7,
+    "correct": 2,
+    "cases": [
+      {
+        "gold": "opinion",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "opinion",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "analytical",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "analytical",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "emotional_personal",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "emotional_personal",
+        "predicted": "opinion"
+      }
+    ]
+  },
+  {
+    "seed": 2024,
+    "correct": 2,
+    "cases": [
+      {
+        "gold": "opinion",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "opinion",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "analytical",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "analytical",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "emotional_personal",
+        "predicted": "opinion"
+      },
+      {
+        "gold": "emotional_personal",
+        "predicted": "opinion"
+      }
+    ]
+  }
+]
