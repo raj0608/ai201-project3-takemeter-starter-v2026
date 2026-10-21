@@ -184,8 +184,7 @@ Ask what the post is mainly about. If it is about the subject (a player, team, o
 | F1 — `label_two` |  |  |  |
 
 **What I predicted before I looked:**
-<!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
-     prediction made afterwards isn't one. -->
+I predicted that my trained model would do well on `opinion`, the label it saw most (97 of 155 training comments), but that it would struggle with `emotional_personal` because it may treat emotional comments as opinions. So the contest comes down to `emotional_personal`: if the baseline labels those comments more accurately, the baseline wins overall. If the baseline is still worse than my trained model on `emotional_personal`, the trained model wins.
 
 **What the gap actually means:**
 <!-- If the baseline matched your trained model, your fine-tuning added
