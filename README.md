@@ -173,24 +173,23 @@ Ask what the post is mainly about. If it is about the subject (a player, team, o
 
 ## Baseline vs. Trained
 
-<!-- Both models on the same posts. `python baseline.py --trained results.json`
-     prints this table for you. -->
+Both models were scored on the same 34 held-out posts in `test_split.csv` (5 `analytical`, 21 `opinion`, 8 `emotional_personal`). The baseline is `facebook/bart-large-mnli`, zero-shot, with no training. I ran it twice: once with my three README definitions as the prompt, and once with bare label names only (`baseline_bare_names_results.json`). The trained model is `distilbert-base-uncased` from `results.json` (seed 42, MPS).
 
-| Measure | Baseline | Trained | Difference |
+| Measure | Baseline (my definitions) | Baseline (bare names) | Trained |
 |---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| Overall accuracy | 0.353 | 0.676 | 0.618 |
+| Macro F1 | 0.247 | 0.571 | 0.255 |
+| F1 — `analytical` | 0.000 | 0.250 | 0.000 |
+| F1 — `emotional_personal` | 0.421 | 0.727 | 0.000 |
+| F1 — `opinion` | 0.320 | 0.737 | 0.764 |
 
 **What I predicted before I looked:**
 I predicted that my trained model would do well on `opinion`, the label it saw most (97 of 155 training comments), but that it would struggle with `emotional_personal` because it may treat emotional comments as opinions. So the contest comes down to `emotional_personal`: if the baseline labels those comments more accurately, the baseline wins overall. If the baseline is still worse than my trained model on `emotional_personal`, the trained model wins.
 
 **What the gap actually means:**
-<!-- If the baseline matched your trained model, your fine-tuning added
-     nothing — and that is a real finding, not a failure. Say it plainly. -->
+My prediction was half right. The trained model is strong on `opinion` (F1 0.764), but it never predicted `analytical` or `emotional_personal` at all: its confusion matrix puts all 34 test posts in the `opinion` column. Its 0.618 accuracy is just the `opinion` share of the test split (21 of 34). By my own rule, the baseline wins, because it scored `emotional_personal` F1 0.421 (0.727 with bare names) against 0.000 for the trained model.
 
-
+Two surprises. First, with my definitions as the prompt the baseline was worse than the trained model on accuracy (0.353 vs 0.618), but with bare label names it did far better (0.676), so my written definitions made the baseline worse by 0.323 accuracy. Second, the trained model is no better than a model that always says `opinion`. Fine-tuning on 155 posts with 97 of them `opinion` taught it the majority label and nothing else. The baseline needed no training and still beat it on both smaller labels.
 
 ---
 
