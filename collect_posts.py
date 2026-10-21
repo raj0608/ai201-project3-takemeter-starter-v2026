@@ -4,7 +4,7 @@ Reddit blocks direct scraping, so this reads the public Arctic Shift archive
 (https://arctic-shift.photon-reddit.com). Output columns match labels.csv
 (text, label, note) with label and note left blank for you to fill in.
 
-Usage: python collect_posts.py [subreddit] [days] [per_day]
+Usage: python collect_posts.py [subreddit] [days] [per_day] [skip_days] [output.csv]
 """
 import csv
 import re
@@ -17,6 +17,8 @@ import requests
 SUB = sys.argv[1] if len(sys.argv) > 1 else "nba"
 DAYS = int(sys.argv[2]) if len(sys.argv) > 2 else 10
 PER_DAY = int(sys.argv[3]) if len(sys.argv) > 3 else 60
+SKIP = int(sys.argv[4]) if len(sys.argv) > 4 else 0  # start this many days further back
+OUT = sys.argv[5] if len(sys.argv) > 5 else "candidates.csv"
 BASE = "https://arctic-shift.photon-reddit.com/api"
 HEADERS = {"User-Agent": "takemeter-class-project/0.1 (educational)"}
 MIN_CHARS, MAX_CHARS = 80, 1200
@@ -59,7 +61,7 @@ def add(text, note):
 
 
 today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-for d in range(1, DAYS + 1):
+for d in range(SKIP + 1, SKIP + DAYS + 1):
     start, end = today - timedelta(days=d), today - timedelta(days=d - 1)
     day = start.date().isoformat()
     fmt = "%Y-%m-%dT%H:%M:%S"
@@ -82,8 +84,8 @@ for d in range(1, DAYS + 1):
             add(f"{p['title']} {body}", f"post {day}")
     print(f"{day}: {len(rows)} candidates so far")
 
-with open("candidates.csv", "w", newline="", encoding="utf-8") as f:
+with open(OUT, "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
     w.writerow(["text", "label", "note"])
     w.writerows(rows)
-print(f"Wrote {len(rows)} candidates to candidates.csv")
+print(f"Wrote {len(rows)} candidates to {OUT}")
